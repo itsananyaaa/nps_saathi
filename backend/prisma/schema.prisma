@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String   @id @default(uuid()) @db.Uuid
+  name                String
+  email               String   @unique
+  phone               String?  @unique
+  password_hash       String
+  language_preference String   @default("en")
+  aadhaar_linked      Boolean  @default(false)
+  digilocker_linked   Boolean  @default(false)
+  created_at          DateTime @default(now())
+
+  // Relations
+  financial_profile FinancialProfile?
+  pension_accounts  PensionAccount[]
+  simulations       SimulationResult[]
+  documents         Documents[]
+  consents          AggregatorConsent[]
+
+  @@map("users")
+}
+
+model FinancialProfile {
+  id                   String   @id @default(uuid()) @db.Uuid
+  user_id              String   @unique @db.Uuid
+  employment_type      String?
+  annual_income        Decimal? @db.Decimal(15, 2)
+  monthly_contribution Decimal? @db.Decimal(15, 2)
+  risk_appetite        String?
+  retirement_age       Int?
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("financial_profiles")
+}
+
+model PensionAccount {
+  id                   String  @id @default(uuid()) @db.Uuid
+  user_id              String  @db.Uuid
+  tier1_balance        Decimal @default(0) @db.Decimal(15, 2)
+  tier2_balance        Decimal @default(0) @db.Decimal(15, 2)
+  contribution_history Json    @default("[]")
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("pension_accounts")
+}
+
+model SimulationResult {
+  id                    String   @id @default(uuid()) @db.Uuid
+  user_id               String   @db.Uuid
+  simulation_parameters Json
+  projection_result     Json
+  simulation_date       DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([user_id, simulation_date])
+  @@map("simulation_results")
+}
+
+model Documents {
+  id                      String   @id @default(uuid()) @db.Uuid
+  user_id                 String   @db.Uuid
+  document_type           String
+  digilocker_reference_id String?  @unique
+  retrieved_at            DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("documents")
+}
+
+model AggregatorConsent {
+  id             String   @id @default(uuid()) @db.Uuid
+  user_id        String   @db.Uuid
+  consent_id     String   @unique
+  consent_status String
+  created_at     DateTime @default(now())
+
+  user           User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  financial_data FinancialData[]
+
+  @@index([user_id])
+  @@index([user_id, consent_status])
+  @@map("aggregator_consents")
+}
+
+model FinancialData {
+  id                    String   @id @default(uuid()) @db.Uuid
+  consent_id            String   @db.Uuid
+  bank_balance          Decimal? @db.Decimal(15, 2)
+  investments           Json?
+  pension_contributions Json?
+
+  consent AggregatorConsent @relation(fields: [consent_id], references: [id], onDelete: Cascade)
+
+  @@index([consent_id])
+  @@map("financial_data")
+}

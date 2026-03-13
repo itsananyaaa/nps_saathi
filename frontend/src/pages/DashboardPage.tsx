@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { IndianRupee, Calendar, TrendingUp, PiggyBank, ShieldCheck, Lightbulb, Loader2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import api from '@/lib/api';
+import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 
 export default function DashboardPage() {
@@ -14,12 +14,35 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response: any = await api.get('/dashboard/summary');
-        if (response.success) {
-          setData(response.data);
+        const dummyProfile = {
+          age: 30,
+          salary: 80000,
+          monthly_contribution: 5000,
+          risk_preference: 'balanced',
+          years_of_service: 5,
+          retirement_age: 60,
+          expected_return: 0.10,
+          volatility: 0.15
+        };
+        const [forecastRes, recRes] = await Promise.all([
+          apiService.getForecast(dummyProfile),
+          apiService.getRecommendation(dummyProfile)
+        ]);
+
+        if (forecastRes.financial_data) {
+          setData({
+            pensionAccount: { tier1_balance: forecastRes.financial_data.projected_corpus },
+            latestSimulation: { 
+              projectedMonthlyPension: forecastRes.financial_data.monthly_pension, 
+              yearlyProjectionData: [] 
+            },
+            financialProfile: { retirement_age: 60, monthly_contribution: 5000, risk_appetite: 'Balanced' },
+            user: { name: 'User' },
+            recommendations: [recRes.response]
+          });
         }
       } catch (error: any) {
-        toast.error(error.response?.data?.message || t('dashboard.error'));
+        toast.error(error.message || t('dashboard.error'));
       } finally {
         setLoading(false);
       }
@@ -150,7 +173,14 @@ export default function DashboardPage() {
           <h2 className="font-display text-xl font-semibold text-foreground">{t('dashboard.recommendations')}</h2>
         </div>
         <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
+          {data?.recommendations ? data.recommendations.map((rec: string, i: number) => (
+            <div key={i} className="flex items-start gap-3 rounded-lg bg-secondary/50 p-4">
+              <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
+                {i + 1}
+              </div>
+              <p className="text-sm text-foreground senior-text-boost">{rec}</p>
+            </div>
+          )) : [1, 2, 3].map((i) => (
             <div key={i} className="flex items-start gap-3 rounded-lg bg-secondary/50 p-4">
               <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent/20 text-xs font-bold text-accent">
                 {i}

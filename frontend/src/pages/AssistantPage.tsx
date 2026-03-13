@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Mic, MicOff, Bot, User, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 
 interface Message {
@@ -42,13 +42,12 @@ export default function AssistantPage() {
     setLoading(true);
 
     try {
-      const response: any = await api.post('/assistant/query', { message: text });
-      
-      if (response.success) {
+      const res = await apiService.askQuery(text);
+      if (res.response) {
         const assistantMsg: Message = { 
           id: (Date.now() + 1).toString(), 
           role: 'assistant', 
-          content: response.reply 
+          content: res.response 
         };
         setMessages((prev) => [...prev, assistantMsg]);
       }

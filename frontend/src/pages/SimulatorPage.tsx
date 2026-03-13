@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Calculator, IndianRupee, TrendingUp, Loader2 } from 'lucide-react';
-import api from '@/lib/api';
+import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
 
 interface SimResult {
@@ -29,20 +29,31 @@ export default function SimulatorPage() {
   const calculate = useCallback(async () => {
     setLoading(true);
     try {
-      const response: any = await api.post('/pension-simulation/forecast', {
-        current_age: age,
-        monthly_contribution: contribution,
+      const res = await apiService.runSimulation({
+        age: age,
         salary: salary,
-        risk_appetite: risk,
-        retirement_age: 60
+        monthly_contribution: contribution,
+        risk_preference: risk,
+        retirement_age: 60,
+        expected_return: 0.10,
+        volatility: 0.15
       });
 
-      if (response.success) {
-        setResult(response.data);
+      if (res.financial_data) {
+        const mappedResult: SimResult = {
+          projectedCorpus: res.financial_data.median_corpus,
+          projectedMonthlyPension: res.financial_data.median_monthly_pension,
+          scenarios: {
+            conservative: { projectedCorpus: res.financial_data.worst_case_corpus, estimatedMonthlyPension: res.financial_data.worst_case_pension },
+            balanced: { projectedCorpus: res.financial_data.median_corpus, estimatedMonthlyPension: res.financial_data.median_monthly_pension },
+            aggressive: { projectedCorpus: res.financial_data.best_case_corpus, estimatedMonthlyPension: res.financial_data.best_case_pension }
+          }
+        };
+        setResult(mappedResult);
         toast.success(t('simulator.success'));
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || t('simulator.error'));
+      toast.error(error.message || t('simulator.error'));
     } finally {
       setLoading(false);
     }

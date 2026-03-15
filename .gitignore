@@ -1,0 +1,81 @@
+# NPS Saathi - .gitignore
+
+# === Python / Backend ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.pyc
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environments
+venv/
+env/
+.venv/
+ENV/
+.env
+model/.env
+
+# Data / ML Artifacts
+*.faiss
+*.pkl
+*.h5
+*.pt
+*.pth
+*.npy
+data/processed_chunks.json
+data/vector_index.faiss
+data/vector_metadata.pkl
+
+# Test Files
+test_phase_2.py
+test_phase_3.py
+test_phase_4.py
+test_phase_5.py
+test_phase_6.py
+test_phase_7.py
+test_phase_8.py
+test_phase_9.py
+test_phase_10.py
+test_phase_11.py
+test_voice_pipeline.py
+manual_test.py
+integration_test_phase1.py
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# === Node.js / Frontend ===
+node_modules/
+frontend/node_modules/
+.npm
+*.tsbuildinfo
+frontend/.tsbuildinfo
+
+# Build outputs
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini

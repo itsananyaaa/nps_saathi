@@ -23,6 +23,7 @@ env/
 ENV/
 .env
 model/.env
+backend/.env
 
 # Data / ML Artifacts
 *.faiss
@@ -35,20 +36,12 @@ data/processed_chunks.json
 data/vector_index.faiss
 data/vector_metadata.pkl
 
-# Test Files
-test_phase_2.py
-test_phase_3.py
-test_phase_4.py
-test_phase_5.py
-test_phase_6.py
-test_phase_7.py
-test_phase_8.py
-test_phase_9.py
-test_phase_10.py
-test_phase_11.py
-test_voice_pipeline.py
+# Test / Debug Files
+test_phase_*.py
+test_*.py
 manual_test.py
 integration_test_phase1.py
+mock_*.json
 
 # IDE
 .vscode/
@@ -60,14 +53,27 @@ integration_test_phase1.py
 
 # === Node.js / Frontend ===
 node_modules/
-frontend/node_modules/
 .npm
 *.tsbuildinfo
-frontend/.tsbuildinfo
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Build outputs
+# Legacy Frontend
+frontend/node_modules/
+frontend/.tsbuildinfo
 frontend/dist/
 frontend/build/
+
+# New Frontend (Kimi App)
+new_frontend/node_modules/
+new_frontend/**/node_modules/
+new_frontend/**/dist/
+new_frontend/**/build/
+new_frontend/**/.tsbuildinfo
+new_frontend/kimi/app/node_modules/
+new_frontend/kimi/app/dist/
 
 # Logs
 *.log

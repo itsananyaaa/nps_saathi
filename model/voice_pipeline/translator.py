@@ -1,29 +1,44 @@
 import logging
+import os
+import google.generativeai as genai
 
 logger = logging.getLogger(__name__)
 
+# Initialize Gemini API if key is available
+api_key = os.environ.get("GOOGLE_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
+
 def translate_text(text: str, source_lang: str, target_lang: str = "en") -> str:
     """
-    Translates text between languages using Bhashini API.
+    Translates text between languages using Gemini API.
     Used to translate User Lang -> English before query, and English -> User Lang after response.
     """
     logger.info(f"Translating text: '{text}' from {source_lang} to {target_lang}")
     
-    # Mocking translation
     if source_lang == target_lang:
         return text
         
-    if target_lang == "en":
-        return "When can I withdraw money from NPS?"
+    try:
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
-    # Translate EN back to Target Lang
-    mock_translated_responses = {
-        "hi": "आप अपनी सेवानिवृत्ति (60 वर्ष) पर एनपीएस से पैसे निकाल सकते हैं। कुछ विशेष परिस्थितियों में आंशिक निकासी की भी अनुमति है।",
-        "ta": "உங்கள் ஓய்வு பெறும்போது (60 வயது) என்.பி.எஸ் இலிருந்து பணத்தை எடுக்கலாம். சில குறிப்பிட்ட சூழ்நிலைகளில் பகுதி பணமும் எடுக்க அனுமதிக்கப்படுகிறது.",
-        "ml": "നിങ്ങളുടെ വിരമിക്കൽ സമയത്ത് (60 വയസ്സ്) എൻപിഎസിൽ നിന്ന് പണം പിൻവലിക്കാം. ചില പ്രത്യേക സാഹചര്യങ്ങളിൽ ഭാഗികമായി പണം പിൻവലിക്കാനും അനുവദിച്ചിരിക്കുന്നു.",
-        "bn": "আপনি আপনার অবসরে (৬০ বছর) এনপিএস থেকে টাকা তুলতে পারবেন। কিছু নির্দিষ্ট পরিস্থিতিতে আংশিক টাকা তোলারও অনুমতি দেওয়া হয়।"
-    }
-    
-    result = mock_translated_responses.get(target_lang, text)
-    logger.info(f"Translated Result: {result}")
-    return result
+        prompt = f"""
+        Translate the following text from {source_lang} to {target_lang}.
+        Provide ONLY the translated text, with no conversational filler, explanations, or quotes.
+        
+        Text to translate:
+        {text}
+        """
+        
+        response = model.generate_content(prompt)
+        translated_text = response.text.strip()
+        logger.info(f"Translated Result: {translated_text}")
+        return translated_text
+        
+    except Exception as e:
+        logger.error(f"Gemini Translation failed: {e}")
+        error_msg = str(e).lower()
+        if "429" in error_msg or "quota" in error_msg:
+             return "SYSTEM ERROR: API Quota Exceeded. Please try again later."
+        # Fallback to returning original text if translation fails
+        return text

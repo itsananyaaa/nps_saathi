@@ -22,7 +22,7 @@ export default function DigiLockerPage() {
     try {
       const response: any = await api.get('/documents/digilocker');
       if (response.success) {
-        setDocuments(response.data);
+        setDocuments(response.data || []);
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || t('digilocker.error'));

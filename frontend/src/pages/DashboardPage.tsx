@@ -5,15 +5,24 @@ import { IndianRupee, Calendar, TrendingUp, PiggyBank, ShieldCheck, Lightbulb, L
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiService } from '@/services/apiService';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          toast.error("Please login to view your dashboard");
+          navigate('/login');
+          return;
+        }
+        
         const dummyProfile = {
           age: 30,
           salary: 80000,

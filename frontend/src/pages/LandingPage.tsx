@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import heroFamily from '@/assets/hero-family.png';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Bot, Mic, TrendingUp, ArrowRight, Shield, Users, IndianRupee } from 'lucide-react';
+import { BookOpen, Bot, Mic, TrendingUp, ArrowRight, Shield, Users, IndianRupee, LogIn } from 'lucide-react';
 
 const features = [
   { icon: BookOpen, titleKey: 'landing.feature_1_title', descKey: 'landing.feature_1_desc' },
@@ -20,6 +20,7 @@ const stats = [
 
 export default function LandingPage() {
   const { t } = useTranslation();
+  const isLoggedIn = !!localStorage.getItem('auth_token');
 
   return (
     <div className="flex flex-col">
@@ -44,13 +45,22 @@ export default function LandingPage() {
               {t('landing.hero_subtitle')}
             </p>
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button asChild size="lg" className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90 senior-btn-boost text-lg px-8 py-6 rounded-xl shadow-lg">
-                <Link to="/dashboard">
-                  {t('landing.cta')}
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="gap-2 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-lg px-8 py-6 rounded-xl">
+              {isLoggedIn ? (
+                <Button asChild size="lg" className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90 senior-btn-boost text-lg px-8 py-6 rounded-xl shadow-lg">
+                  <Link to="/dashboard">
+                    {t('landing.cta')}
+                    <ArrowRight className="h-5 w-5" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button asChild variant="secondary" size="lg" className="gap-2 text-primary text-lg px-8 py-6 rounded-xl shadow-lg">
+                  <Link to="/login">
+                    <LogIn className="h-5 w-5" />
+                    {t('nav.login')}
+                  </Link>
+                </Button>
+              )}
+              <Button asChild size="lg" className="gap-2 border-2 border-primary-foreground/30 bg-primary text-primary-foreground hover:bg-primary-foreground/10 text-lg px-8 py-6 rounded-xl">
                 <a href="#what-is-nps">
                   {t('landing.cta_learn')}
                 </a>

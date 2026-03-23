@@ -43,5 +43,24 @@ export const apiService = {
   getRecommendation: async (userProfile: UserProfile): Promise<ApiResponse> => {
     const response = await axios.post(`${API_BASE_URL}/recommend`, userProfile);
     return response.data;
+  },
+
+  askTextQuery: async (text: string, language: string, userProfile?: UserProfile): Promise<ApiResponse> => {
+    const response = await axios.post(`${API_BASE_URL}/text_query`, {
+      text,
+      language,
+      user_profile: userProfile || {}
+    });
+    return response.data;
+  },
+
+  askVoiceQuery: async (audioBase64: string, language: string, userProfile?: UserProfile): Promise<ApiResponse & { audio_response?: string }> => {
+    const response = await axios.post(`${API_BASE_URL}/voice_query`, {
+      audio_base64: audioBase64,
+      language,
+      user_profile: userProfile || {}
+    });
+    return response.data;
   }
 };
+

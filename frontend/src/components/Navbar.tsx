@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useSeniorMode } from '@/contexts/SeniorModeContext';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Globe, Eye, User, LogIn } from 'lucide-react';
+import { Globe, Eye, User, LogIn, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const languages = [
@@ -17,6 +17,13 @@ const languages = [
 export function Navbar() {
   const { t, i18n } = useTranslation();
   const { seniorMode, toggleSeniorMode } = useSeniorMode();
+  const navigate = useNavigate();
+  const isLoggedIn = !!localStorage.getItem('auth_token');
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    navigate('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b border-border bg-card px-4 md:px-6" role="banner">
@@ -61,13 +68,20 @@ export function Navbar() {
           </SelectContent>
         </Select>
 
-        {/* Login */}
-        <Button variant="outline" size="sm" asChild className="gap-2">
-          <Link to="/login">
-            <LogIn className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">{t('nav.login')}</span>
-          </Link>
-        </Button>
+        {/* Login / Logout */}
+        {isLoggedIn ? (
+          <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
+            <LogOut className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden sm:inline">{t('auth.logout') || 'Logout'}</span>
+          </Button>
+        ) : (
+          <Button variant="outline" size="sm" asChild className="gap-2">
+            <Link to="/login">
+              <LogIn className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">{t('nav.login')}</span>
+            </Link>
+          </Button>
+        )}
       </div>
     </header>
   );

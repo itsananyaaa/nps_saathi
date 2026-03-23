@@ -26,7 +26,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const endpoint = isRegister ? '/auth/register' : '/auth/login';
+      const endpoint = isRegister ? '/api/v1/auth/register' : '/api/v1/auth/login';
       const response: any = await api.post(endpoint, formData);
 
       if (response.success) {

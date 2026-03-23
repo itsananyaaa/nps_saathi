@@ -15,16 +15,14 @@ export default function FinancialPage() {
 
   const fetchFinancialData = async (consentId: string) => {
     try {
-      // Simulate waiting for AA approval (backend has a 2s auto-approve)
-      await new Promise(r => setTimeout(r, 2500));
       const response: any = await api.get(`/aggregator/data/${consentId}`);
-      if (response.success) {
-        setData(response.data.formattedData);
-        setTotalCorpus(response.data.totalCorpus);
+      if (response.success && response.data) {
+        setData(response.data.formattedData || []);
+        setTotalCorpus(response.data.totalCorpus || 0);
         toast.success(t('financial.success'));
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || t('financial.error'));
+      toast.error(error.message || t('financial.error'));
     } finally {
       setLoading(false);
     }

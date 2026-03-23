@@ -52,7 +52,7 @@ def handle_query(query: str, user_profile: dict = None) -> dict:
             return format_response(intent, "Knowledge index is unavailable.")
             
         top_chunks = retrieve_context(query, rag_index, rag_metadata, k=3)
-        rag_result = generate_rag_response(query, top_chunks)
+        rag_result = generate_rag_response(query, top_chunks, user_profile)
         
         return format_response(
             intent=intent,
